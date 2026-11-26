@@ -22,6 +22,14 @@ function validate(emoji: string): void {
   if (emoji.trim() !== emoji || emoji.length === 0) {
     throw new Error("entry must not be empty or padded with whitespace");
   }
+  // Revision (coordinator): reject invisible format characters and
+  // require the single emoji to encode as exactly 4 UTF-8 bytes.
+  if (/[\u200B-\u200F\uFEFF\u00AD]/.test(emoji)) {
+    throw new Error("entry contains invisible format characters");
+  }
+  if (Buffer.byteLength(emoji, "utf8") !== 4) {
+    throw new Error("entry must be a single 4-byte emoji");
+  }
 }
 
 const outDir: string = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
